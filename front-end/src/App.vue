@@ -2,40 +2,47 @@
   <div id="app">
     <div id="title-bar">
       <div id="logo">
-        | HamSpace
+        <router-link to="/"><img id="logo-image" src="@/assets/logo.png"></router-link>
+        | SeaSpace
       </div>
       <div id="nav">
-        <router-link to="/">Home</router-link>
         <router-link to="/upload"><img class="icons" src="@/assets/new.png"></router-link>
         <router-link to="/account"><img class="icons" src="@/assets/user.png"></router-link>
       </div>
-      <router-view/>
     </div>
+    <router-view/>
   </div>
 </template>
 
 <style>
 body {
   margin: 0 !important;
+  color: #1f1f1f;
 }
 
 .icons {
   width: 20px;
-  margin: 0 10px;
+  margin: 0 14px;
 }
 
 #title-bar {
   display: flex;
   background-color: #1b3a7c;
-  padding: 20px 60px;
+  padding: 5px 35px;
 }
 
 #logo {
   flex: 1;
   display: flex;
   justify-content: flex-start;
-  text-align: left;
-  color: #e9e9e9;
+  align-items: center;
+  color: #e4e4e4;
+  font-size: 1.5em;
+}
+
+#logo-image {
+  width: 65px;
+  margin-right: 20px;
 }
 
 #app {
@@ -50,7 +57,7 @@ body {
   flex: 1;
   display: flex;
   justify-content: flex-end;
-  text-align: center;
+  align-items: center;
 }
 
 #nav a {
