@@ -16,7 +16,8 @@
                     </div>
                 </div>
                 <button @click='getComments(post._id)'>Show Comments</button>
-                <button @click='like(post._id)'>Like</button>
+                <input v-if='likeMap.length != 0 && liked(post._id)' @click='like(post._id)' alt='Like' type='image' :src='require("@/assets/liked.png")'>
+                <input v-else alt='Like' @click='like(post._id)' type='image' :src='require("@/assets/unliked.png")'>
                 <button @click='deletePost(post._id)'>Delete</button>
                 <textarea v-model='text' placeholder='Comment...'></textarea>
                 <button @click='addComment(post._id)'>Comment</button>
@@ -38,6 +39,7 @@ export default {
             limiter: 3,
             comments: [],
             activePost: 0,
+            likeMap: [],
         }
     },
     created() {
@@ -57,9 +59,15 @@ export default {
             try {
                 let response = await axios.get('/api/posts');
                 this.posts = response.data;
+                this.initializeLikeMap();
                 return true;
             } catch (error) {
                 console.log(error);
+            }
+        },
+        initializeLikeMap() {
+            for (let i = this.likeMap.length; i < this.posts.length; i++) {
+                this.likeMap.push({id: this.posts[i]._id, liked: false});
             }
         },
         async getComments(id) {
@@ -102,12 +110,16 @@ export default {
         async like(id) {
             try {
                 await axios.put('/api/posts/' + id);
+                console.log(this.likeMap[this.likeMap.findIndex(post => post.id === id)]);
+                this.likeMap[this.likeMap.findIndex(post => post.id === id)].liked = true;
                 this.getPosts();
                 return true;
             } catch (error) {
                 console.log(error);
             }
-
+        },
+        liked(id) {
+            return this.likeMap[this.likeMap.findIndex(post => post.id === id)].liked;
         }
     }
 }
