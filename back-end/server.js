@@ -54,6 +54,23 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
+app.get('/api/posts/:postID/comments', async (req, res) => {
+    try {
+        let post = await Post.findOne({
+            _id: req.params.postID
+        })
+        if (!post) {
+            res.send(404);
+            return;
+        }
+        let comments = await Comment.find({post:post});
+        res.send(comments);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
 // Upload photo
 app.post('/api/photos', upload.single('photo'), async (req, res) => {
     if (!req.file) {
@@ -66,9 +83,12 @@ app.post('/api/photos', upload.single('photo'), async (req, res) => {
 
 app.post('/api/posts', async (req, res) => {
     console.log(req.body.user);
-    if (!User.findOne({
+    console.log(User.findOne({
         username: req.body.user
-    })) {
+    }))
+    if (User.findOne({
+        username: req.body.user
+    }) === false) {
         res.sendStatus(404);
         return false;
     }
@@ -81,6 +101,29 @@ app.post('/api/posts', async (req, res) => {
     try {
         await post.save();
         res.send(post);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+app.post('/api/posts/:postID/comments', async (req, res) => {
+    try {
+        let post = await Post.findOne({
+            _id: req.params.postID
+        })
+        if (!post) {
+            res.send(404);
+            return;
+        }
+        let comment = new Comment({
+            post: post,
+            text: req.body.text,
+            date: req.body.date,
+        })
+        console.log(comment);
+        await comment.save();
+        res.send(comment);
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -117,6 +160,14 @@ app.put('/api/posts/:id', async (req, res) => {
 
 app.delete('/api/posts/:id', async(req, res) => {
     try {
+        let post = await Post.findOne({
+            _id: req.params.id
+        })
+        if (!post) {
+            res.send(404);
+            return;
+        }
+        await Comment.deleteMany({post: post});
         await Post.deleteOne({
             _id: req.params.id
         });
