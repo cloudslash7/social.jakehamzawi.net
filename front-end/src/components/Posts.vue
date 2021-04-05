@@ -108,14 +108,16 @@ export default {
             }
         },
         async like(id) {
-            try {
-                await axios.put('/api/posts/' + id);
-                console.log(this.likeMap[this.likeMap.findIndex(post => post.id === id)]);
-                this.likeMap[this.likeMap.findIndex(post => post.id === id)].liked = true;
-                this.getPosts();
-                return true;
-            } catch (error) {
-                console.log(error);
+            if (!this.likeMap.find(post => post.id === id).liked) {
+                try {
+                    await axios.put('/api/posts/' + id);
+                    console.log(this.likeMap[this.likeMap.findIndex(post => post.id === id)]);
+                    this.likeMap[this.likeMap.findIndex(post => post.id === id)].liked = true;
+                    this.getPosts();
+                    return true;
+                } catch (error) {
+                    console.log(error);
+                }
             }
         },
         liked(id) {
