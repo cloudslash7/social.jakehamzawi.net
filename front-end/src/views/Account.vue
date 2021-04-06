@@ -1,8 +1,19 @@
 <template>
   <div>
-    <input v-model='username' placeholder='username'>
-    <input v-model='password' placeholder='password'>
-    <button @click='createAccount'>Create Account</button>
+    <div v-if='accountCreated'>
+      <h2>Account created successfully!</h2>
+      <h3><router-link to='/'>Back home</router-link></h3>
+    </div>
+    <div v-else>
+      <h1>Create an account</h1>
+      <div class='main-container'>
+        <div class='container'>
+          <input class='account-box' v-model='username' placeholder='username'>
+          <input class='account-box' v-model='password' placeholder='password'>
+        </div>
+      </div>
+      <button id='createAccount' @click='createAccount'>Create Account</button>
+    </div>
   </div>
 </template>
 
@@ -14,6 +25,7 @@ import axios from 'axios';
       return {
         username: "",
         password: "",
+        accountCreated: false
       }
     },
     methods: {
@@ -23,6 +35,8 @@ import axios from 'axios';
             username: this.username,
             password: this.password
           });
+          this.username = this.password = "";
+          this.accountCreated = true;
         } catch (error) {
           console.log(error)
         }
@@ -30,3 +44,22 @@ import axios from 'axios';
     }
   }
 </script>
+
+<style scoped>
+.main-container {
+  display: flex;
+  justify-content: center;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+}
+.account-box {
+  width: 200px;
+  margin-bottom: 10px;
+}
+
+#createAccount {
+  margin-top: 20px;
+}
+</style>

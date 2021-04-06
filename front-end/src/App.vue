@@ -6,7 +6,6 @@
         | SeaSpace
       </div>
       <div id="nav">
-        <router-link to="/upload"><img class="icons" src="@/assets/new.png"></router-link>
         <router-link to="/account"><img class="icons" src="@/assets/user.png"></router-link>
       </div>
     </div>
@@ -16,8 +15,13 @@
 
 <style>
 body {
-  margin: 0 !important;
+  margin: 0 0 50px 0 !important;
   color: #1f1f1f;
+}
+
+.controls {
+  width: 25px;
+  margin-left: auto;
 }
 
 .icons {

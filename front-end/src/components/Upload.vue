@@ -1,14 +1,18 @@
 <template>
   <div>
-    <h1>Create a Post</h1>
-    <div class='container'>
-      <div class='upload-container'>
-        <input id='upload-image' img='@/assets/image.png' type='file' accept='image/*' name='photo' @change='fileChanged'>
-        <input v-model='user' placeholder='Username'>
-        <textarea id='description' v-model='description' placeholder="What's on your mind?"></textarea>
-        <button @click='upload'>Upload</button>
-        <div v-if='addItem'>
-          <img id='preview' :src='addItem.path'/>
+    <button v-if='!createPost' @click='createPost=true'>Create Post</button>
+    <div v-if='createPost'>
+      <h1>Create a Post</h1>
+      <div class='container'>
+        <div class='upload-container'>
+          <input class='upload-item' id='upload-image' img='@/assets/image.png' type='file' accept='image/*' name='photo' @change='fileChanged'>
+          <input class='upload-item' v-model='user' placeholder='Username'>
+          <textarea class='upload-item' id='description' v-model='description' placeholder="What's on your mind?"></textarea>
+          <input class='controls' type='image' :src='require("@/assets/cancel.png")' @click='createPost=false'>
+          <input class='controls' type='image' alt='Upload' :src='require("@/assets/check.png")' @click='upload'>
+          <div v-if='addItem'>
+            <img id='preview' :src='addItem.path'/>
+          </div>
         </div>
       </div>
     </div>
@@ -27,6 +31,7 @@ export default {
       addItem: null,
       posts: [],
       findPost: null,
+      createPost: false,
     }
   },
   created() {
@@ -57,12 +62,12 @@ export default {
 
 <style scoped>
 #preview {
-  width: 400px;
+  max-width: 100%;
 }
 
 #description {
-  width: 80%;
-  height: 200px;
+  width: 100%;
+  height: 100px;
 }
 
 .container {
@@ -73,8 +78,11 @@ export default {
 .upload-container {
   display: flex;
   flex-direction: column;
-  width: 50%;
   align-items: center;
   justify-content: center;
+}
+
+.upload-item {
+  margin-top: 20px;
 }
 </style>

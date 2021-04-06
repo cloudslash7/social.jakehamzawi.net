@@ -1,28 +1,34 @@
 <template>
     <div class='posts'>
         <div v-if='posts'>
-            <div v-for='post in this.slicedPosts' :key='post._id'>
-                <p>{{post.user}}</p>
+            <div class='post' v-for='post in this.slicedPosts' :key='post._id'>
+                <h3 class='username'>{{post.user}}</h3>
                 <img class='image' :src='post.path'/>
-                <p>{{post.description}}</p>
-                <p>{{post.likes}}</p>
-                <div v-if='comments.length != 0'>
-                    <div v-for='commentGroup in comments' :key='commentGroup.post'>
-                        <div v-if='commentGroup[0].post === post._id'>
-                            <div v-for='comment in commentGroup' :key='comment._id'>
-                                {{comment.text}}
+                <div class='likes'>
+                    <input class='likeButton' v-if='likeMap.length != 0 && liked(post._id)' @click='like(post._id)' alt='Like' type='image' :src='require("@/assets/liked.png")'>
+                    <input class='likeButton' v-else alt='Like' @click='like(post._id)' type='image' :src='require("@/assets/unliked.png")'>
+                    <p>{{post.likes}}</p>
+                    <input class='controls' id='trash' type='image' :src='require("@/assets/delete.png")' @click='deletePost(post._id)'>
+                </div>
+                <div id='description'>{{post.description}}</div>
+                <hr>
+                <input type='image' class='controls' alt='Comments' :src='require("@/assets/comment.png")' @click='getComments(post._id); toggleComments(post._id)'>
+                <div v-if='displayComments[post._id]'>
+                    <div v-if='comments.length != 0'>
+                        <div v-for='commentGroup in comments' :key='commentGroup.post'>
+                            <div v-if='commentGroup[0].post === post._id'>
+                                <div class='comment' v-for='comment in commentGroup' :key='comment._id'>
+                                    <div id='commentText'>{{comment.text}}</div>
+                                    <div id='commentDate'>{{comment.date}}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <textarea id='commentBox' v-model='text[post._id]' placeholder='Anything to add?'></textarea>
+                    <input class='controls' type='image' alt='Comment' :src='require("@/assets/check.png")' @click='addComment(post._id)'>
                 </div>
-                <button @click='getComments(post._id)'>Show Comments</button>
-                <input v-if='likeMap.length != 0 && liked(post._id)' @click='like(post._id)' alt='Like' type='image' :src='require("@/assets/liked.png")'>
-                <input v-else alt='Like' @click='like(post._id)' type='image' :src='require("@/assets/unliked.png")'>
-                <button @click='deletePost(post._id)'>Delete</button>
-                <textarea v-model='text' placeholder='Comment...'></textarea>
-                <button @click='addComment(post._id)'>Comment</button>
             </div>
-            <button @click='limiter += 2'>Show more</button>
+            <button v-if="this.posts.length > 3" @click='limiter += 2'>Show more</button>
         </div>
     </div>
 </template>
@@ -35,11 +41,11 @@ export default {
     data() {
         return {
             posts: [],
-            text: '',
+            text: {},
             limiter: 3,
             comments: [],
-            activePost: 0,
             likeMap: [],
+            displayComments: {}
         }
     },
     created() {
@@ -73,18 +79,28 @@ export default {
         async getComments(id) {
             try {
                 let response = await axios.get('/api/posts/' + id + '/comments');
+                if (response.data.length === 0) return;
                 if (response.data.length != 0) {
                     if (this.comments.length != 0) {
-                        this.comments.forEach(comments => {
-                            if (comments[0].post === response.data[0].post) return;
-                        })
+                        // Check if comments already exist
+                        for (let i = 0; i < this.comments.length; i++) {
+                            // Add only new comments to post
+                            if (this.comments[i][0].post === response.data[0].post) {
+                                for (let j = this.comments[i].length; j < response.data.length; j++) {
+                                    this.comments[i].push(response.data[j]);
+                                }
+                                return true;
+                            } 
+                        }
                     }
                 }
                 this.comments.push(response.data);
-                this.activePost = id;
             } catch (error) {
                 console.log(error);
             }
+        },
+        toggleComments(id) {
+            this.$set(this.displayComments, id, !this.displayComments[id]);
         },
         async deletePost(id) {
             try {
@@ -98,10 +114,12 @@ export default {
         async addComment(id) {
             try {
                 await axios.post('/api/posts/' + id + '/comments', {
-                    text: this.text,
-                    date: moment().format('MMMM Do YYYY, h:mm:ss a')
+                    text: this.text[id],
+                    date: moment().format('MM/DD/YYYY, h:mm a')
                 });
                 this.getPosts();
+                this.getComments(id);
+                this.text = {};
                 return true;
             } catch (error) {
                 console.log(error);
@@ -128,7 +146,67 @@ export default {
 </script>
 
 <style scoped>
+hr {
+    border: 1px solid #cacaca;
+    width: 100%;
+}
+
+.posts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.post {
+    display: flex;
+    flex-direction: column;
+}
+
 .image {
-    width: 400px;
+    max-width: 100%;
+}
+
+.likeButton {
+    width: 20px;
+    margin-right: 10px;
+}
+
+.username {
+    margin-right: auto;
+}
+
+.likes {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#trash {
+    margin-left: auto;
+}
+
+#description {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: left;
+}
+
+.comment {
+    margin-top: 20px;
+    text-align: left;
+}
+
+#commentDate {
+    margin-left: 10px;
+    font-size: .7em;
+    color: #777777;
+}
+
+#commentBox {
+    margin-top: 20px;
+    width: 100%;
+    height: 5em;
 }
 </style>

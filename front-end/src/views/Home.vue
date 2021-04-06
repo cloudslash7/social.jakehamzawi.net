@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h1>Whale-come! Here are the latest posts!</h1>
-    <button v-if='!createPost' @click='createPost=true'>Create Post</button>
-    <div v-if='createPost'>
-      <Upload></Upload>
-      <button @click='createPost=false'>Cancel</button>
+    <div class='main-container'>
+      <h1>Whale-come! Here are the latest posts!</h1>
+      <div class='container'>
+        <Upload></Upload>
+      </div>
+      <div class='container'><Posts></Posts></div>
     </div>
-    <Posts></Posts>
   </div>
 </template>
 
@@ -27,3 +27,17 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.container {
+  display: flex;
+  justify-content: center;
+  width: 40%;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+</style>

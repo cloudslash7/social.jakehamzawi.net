@@ -82,13 +82,18 @@ app.post('/api/photos', upload.single('photo'), async (req, res) => {
   });
 
 app.post('/api/posts', async (req, res) => {
-    console.log(req.body.user);
-    console.log(User.findOne({
-        username: req.body.user
-    }))
-    if (User.findOne({
-        username: req.body.user
-    }) === false) {
+    let userFound = await User.countDocuments({username:req.body.user}, function (err, count) {
+        if (err) {
+            console.log(err);
+            return 0;
+        }
+        else {
+            console.log("User \"" + req.body.user + "\" - " + count);
+            return count;
+        }
+    });
+    if (!userFound) {
+        console.log("User \"" + req.body.user + "\" not found!");
         res.sendStatus(404);
         return false;
     }
@@ -101,9 +106,11 @@ app.post('/api/posts', async (req, res) => {
     try {
         await post.save();
         res.send(post);
+        return true;
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
+        return false;
     }
 });
 
