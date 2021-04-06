@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const upload = multer({
-    dest: '../front-end/public/images',
+    dest: '../front-end/images',
     limits: {
         fileSize: 10000000
     }
