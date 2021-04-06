@@ -3,7 +3,7 @@
     <div id="title-bar">
       <div id="logo">
         <router-link to="/"><img id="logo-image" src="@/assets/logo.png"></router-link>
-        | SeaSpace
+        <div id='logoText'>SeaSpace</div>
       </div>
       <div id="nav">
         <router-link to="/account"><img class="icons" src="@/assets/user.png"></router-link>
@@ -14,14 +14,36 @@
 </template>
 
 <style>
-body {
-  margin: 0 0 50px 0 !important;
-  color: #1f1f1f;
+@media screen and (max-width: 600px) {
+  #logoText {
+    visibility: hidden
+  }
+  body {
+    font-size: .8em;
+  }
+  h1 {
+    font-size: 2em;
+  }
 }
+
+@media screen and (min-width: 600px) {
+  body {
+    font-size: 1em;
+  }
+  #logoText{
+    margin-left: 20px;
+  }
+}
+
+body {
+    margin: 0 0 50px 0 !important;
+    color: #1f1f1f;
+  }
 
 .controls {
   width: 25px;
-  margin-left: auto;
+  height: 25px;
+  margin: 5px;
 }
 
 .icons {

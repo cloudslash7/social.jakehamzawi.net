@@ -14,6 +14,8 @@
       </div>
       <button id='createAccount' @click='createAccount'>Create Account</button>
     </div>
+    <hr style='margin-top:500px;'>
+    <div>https://github.com/cloudslash7/social.jakehamzawi.net</div>
   </div>
 </template>
 

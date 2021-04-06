@@ -1,15 +1,17 @@
 <template>
   <div>
-    <button v-if='!createPost' @click='createPost=true'>Create Post</button>
+    <input type='image' id='addIcon' alt='Post' :src='require("@/assets/add.png")' v-if='!createPost' @click='createPost=true'>
     <div v-if='createPost'>
       <h1>Create a Post</h1>
       <div class='container'>
         <div class='upload-container'>
           <input class='upload-item' id='upload-image' img='@/assets/image.png' type='file' accept='image/*' name='photo' @change='fileChanged'>
-          <input class='upload-item' v-model='user' placeholder='Username'>
+          <input :class="error ? 'uploadItem error' : 'uploadItem'" v-model='user' placeholder='Username'>
           <textarea class='upload-item' id='description' v-model='description' placeholder="What's on your mind?"></textarea>
-          <input class='controls' type='image' :src='require("@/assets/cancel.png")' @click='createPost=false'>
-          <input class='controls' type='image' alt='Upload' :src='require("@/assets/check.png")' @click='upload'>
+          <div id='controlBox'>
+            <input class='controls' type='image' :src='require("@/assets/cancel.png")' @click='createPost=false'>
+            <input class='controls' type='image' alt='Upload' :src='require("@/assets/check.png")' @click='upload'>
+          </div>
           <div v-if='addItem'>
             <img id='preview' :src='addItem.path'/>
           </div>
@@ -32,6 +34,7 @@ export default {
       posts: [],
       findPost: null,
       createPost: false,
+      error: false
     }
   },
   created() {
@@ -43,6 +46,7 @@ export default {
     },
     async upload() {
       try {
+        this.error = false;
         const formData = new FormData();
         formData.append('photo', this.file, this.file.name)
         let r1 = await axios.post('/api/photos', formData);
@@ -52,8 +56,12 @@ export default {
           path: r1.data.path
         });
         this.addItem = r2.data;
+        this.user = this.description = "";
+        this.file = null;
+        this.$router.go();
       } catch (error) {
         console.log(error);
+        this.error=true;
       }
     },
   }
@@ -63,6 +71,12 @@ export default {
 <style scoped>
 #preview {
   max-width: 100%;
+}
+
+#controlBox {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 #description {
@@ -84,5 +98,14 @@ export default {
 
 .upload-item {
   margin-top: 20px;
+}
+
+.error {
+  border: 1px solid red;
+}
+
+#addIcon {
+  margin: 20px;
+  width: 30px;
 }
 </style>

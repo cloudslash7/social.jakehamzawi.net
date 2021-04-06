@@ -2,9 +2,7 @@
   <div>
     <div class='main-container'>
       <h1>Whale-come! Here are the latest posts!</h1>
-      <div class='container'>
-        <Upload></Upload>
-      </div>
+      <div class='container'><Upload></Upload></div>
       <div class='container'><Posts></Posts></div>
     </div>
   </div>
@@ -20,19 +18,25 @@ export default {
     Upload,
     Posts
   },
-  data() {
-    return {
-      createPost: false,
-    }
-  }
 }
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  justify-content: center;
-  width: 40%;
+@media screen and (max-width: 600px) {
+  .container {
+    display: flex;
+    justify-content: center;
+    width: 60%;
+    margin: 10px;
+  }
+}
+
+@media screen and (min-width: 600px) {
+  .container {
+    display: flex;
+    justify-content: center;
+    width: 40%;
+  }
 }
 
 .main-container {
