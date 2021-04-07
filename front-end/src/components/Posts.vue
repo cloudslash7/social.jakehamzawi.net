@@ -25,7 +25,9 @@
                         </div>
                     </div>
                     <textarea id='commentBox' v-model='text[post._id]' placeholder='Anything to add?'></textarea>
-                    <input class='controls' type='image' alt='Comment' :src='require("@/assets/check.png")' @click='addComment(post._id)'>
+                    <div id='addCommentBox'>
+                        <input class='controls' type='image' alt='Comment' :src='require("@/assets/check.png")' @click='addComment(post._id)'>
+                    </div>
                 </div>
             </div>
             <button v-if="this.posts.length > 3" @click='limiter += 2'>Show more</button>
@@ -208,5 +210,11 @@ hr {
     margin-top: 20px;
     width: 100%;
     height: 5em;
+}
+
+#addCommentBox {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
 }
 </style>
