@@ -16,60 +16,23 @@ app.use(bodyParser.urlencoded({
 
 const mongoose = require('mongoose');
 
-const postSchema = new mongoose.Schema({
-    user: String,
-    description: String,
-    path: String,
-    likes: Number
-})
-const Post = mongoose.model('Post', postSchema)
-
-const commentSchema = new mongoose.Schema({
-    post: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Post'
-    },
-    text: String,
-    date: String
-})
-const Comment = mongoose.model('Comment', commentSchema);
-
-const userSchema = new mongoose.Schema({
-    username: String,
-    password: String
-})
-const User = mongoose.model('User', userSchema);
-
 mongoose.connect('mongodb://localhost:27017/seaspace', {
     useNewUrlParser: true
 });
 
-app.get('/api/posts', async (req, res) => {
-    try {
-        let posts = await Post.find();
-        res.send(posts);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
-app.get('/api/posts/:postID/comments', async (req, res) => {
-    try {
-        let post = await Post.findOne({
-            _id: req.params.postID
-        })
-        if (!post) {
-            res.send(404);
-            return;
-        }
-        let comments = await Comment.find({post:post});
-        res.send(comments);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: [
+    'secretValue'
+  ],
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 // Upload photo
 app.post('/api/photos', upload.single('photo'), async (req, res) => {
@@ -79,110 +42,12 @@ app.post('/api/photos', upload.single('photo'), async (req, res) => {
     res.send({
       path: "/images/" + req.file.filename
     });
-  });
-
-app.post('/api/posts', async (req, res) => {
-    let userFound = await User.countDocuments({username:req.body.user}, function (err, count) {
-        if (err) {
-            console.log(err);
-            return 0;
-        }
-        else {
-            console.log("User \"" + req.body.user + "\" - " + count);
-            return count;
-        }
-    });
-    if (!userFound) {
-        console.log("User \"" + req.body.user + "\" not found!");
-        res.sendStatus(404);
-        return false;
-    }
-    const post = new Post({
-        user: req.body.user,
-        description: req.body.description,
-        path: req.body.path,
-        likes: 0
-    });
-    try {
-        await post.save();
-        res.send(post);
-        return true;
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-        return false;
-    }
 });
 
-app.post('/api/posts/:postID/comments', async (req, res) => {
-    try {
-        let post = await Post.findOne({
-            _id: req.params.postID
-        })
-        if (!post) {
-            res.send(404);
-            return;
-        }
-        let comment = new Comment({
-            post: post,
-            text: req.body.text,
-            date: req.body.date,
-        })
-        console.log(comment);
-        await comment.save();
-        res.send(comment);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
+const users = require("./users.js");
+app.use("/api/users", users.routes);
 
-app.post('/api/users', async (req, res) => {
-    const user = new User({
-        username: req.body.username,
-        password: req.body.password
-    });
-    try {
-        await user.save();
-        res.send(200);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
+const posts = require("./posts.js");
+app.use("/api/posts", posts.routes);
 
-app.put('/api/posts/:id', async (req, res) => {
-    try {
-        let post = await Post.findOne({
-            _id: req.params.id
-        })
-        post.likes++;
-        post.save();
-        res.sendStatus(200);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
-
-app.delete('/api/posts/:id', async(req, res) => {
-    try {
-        let post = await Post.findOne({
-            _id: req.params.id
-        })
-        if (!post) {
-            res.send(404);
-            return;
-        }
-        await Comment.deleteMany({post: post});
-        await Post.deleteOne({
-            _id: req.params.id
-        });
-        res.sendStatus(200);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
-
-app.listen(3000, () => console.log('Server listening on port 3000'));
+app.listen(3000, () => console.log('Server listening on port 3000!'));

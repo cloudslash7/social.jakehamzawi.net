@@ -6,12 +6,26 @@
         <div id='logoText'>SeaSpace</div>
       </div>
       <div id="nav">
-        <router-link to="/account"><img class="icons" src="@/assets/user.png"></router-link>
+        <div id='userInfo' v-if='user'>
+          <div>{{user.username}}</div>
+          <router-link to="/account"><input type='image' :src="require('@/assets/user.png')"></router-link>
+        </div>
+        <router-link v-if=!user to="/login"><button>Sign In</button></router-link>
       </div>
     </div>
     <router-view/>
   </div>
 </template>
+
+<script>
+export default {
+  computed: {
+    user: function() {
+      return this.$root.$data.user;
+    }
+  }
+}
+</script>
 
 <style>
 @media screen and (max-width: 600px) {
@@ -33,6 +47,10 @@
   #logoText{
     margin-left: 20px;
   }
+}
+
+#userInfo {
+  color: #e4e4e4;
 }
 
 body {
@@ -89,9 +107,5 @@ body {
 #nav a {
   font-weight: bold;
   color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
 }
 </style>

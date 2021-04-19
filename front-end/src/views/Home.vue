@@ -2,7 +2,7 @@
   <div>
     <div class='main-container'>
       <h1>Whale-come! Here are the latest posts!</h1>
-      <div class='container'><Upload></Upload></div>
+      <div v-if='user' class='container'><Upload></Upload></div>
       <div class='container'><Posts></Posts></div>
     </div>
   </div>
@@ -18,6 +18,11 @@ export default {
     Upload,
     Posts
   },
+  computed: {
+    user: function() {
+      return this.$root.$data.user;
+    }
+  }
 }
 </script>
 
