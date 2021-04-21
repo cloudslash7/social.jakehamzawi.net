@@ -7,8 +7,8 @@
       </div>
       <div id="nav">
         <div id='userInfo' v-if='user'>
-          <div>{{user.username}}</div>
-          <router-link to="/account"><input type='image' :src="require('@/assets/user.png')"></router-link>
+          <router-link to="/account"><input type='image' id='accountIcon' :src="require('@/assets/user.png')"></router-link>
+          {{user.username}}
           <button @click='logout'>Sign Out</button>
         </div>
         <router-link v-if=!user to="/login"><button>Sign In</button></router-link>
@@ -51,7 +51,6 @@ export default {
     font-size: 2em;
   }
 }
-
 @media screen and (min-width: 600px) {
   body {
     font-size: 1em;
@@ -60,33 +59,30 @@ export default {
     margin-left: 20px;
   }
 }
-
 #userInfo {
-  color: #e4e4e4;
+  color: #cacaca;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
-
 body {
-    margin: 0 0 50px 0 !important;
-    color: #1f1f1f;
-  }
-
+  margin: 0 0 50px 0 !important;
+  color: #1f1f1f;
+}
 .controls {
   width: 25px;
   height: 25px;
   margin: 5px;
 }
-
 .icons {
   width: 20px;
   margin: 0 14px;
 }
-
 #title-bar {
   display: flex;
   background-color: #1b3a7c;
   padding: 5px 35px;
 }
-
 #logo {
   flex: 1;
   display: flex;
@@ -95,12 +91,10 @@ body {
   color: #e4e4e4;
   font-size: 1.5em;
 }
-
 #logo-image {
   width: 65px;
   margin-right: 20px;
 }
-
 #app {
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -108,16 +102,21 @@ body {
   text-align: center;
   color: #2c3e50;
 }
-
 #nav {
   flex: 1;
   display: flex;
   justify-content: flex-end;
   align-items: center;
 }
-
 #nav a {
   font-weight: bold;
   color: #2c3e50;
+}
+#accountIcon {
+  width: 20px;
+  margin: 20px
+}
+input[type="image"]:focus {
+  outline: none;
 }
 </style>

@@ -197,7 +197,13 @@ router.put('/:userID', async (req, res) => {
         message: "Incorrect password!"
       });
     }
-    user.password = req.body.newPassword;
+    if (User.findOne({username: req.body.newUserName})) {
+      return res.status(403).send({
+        message: "User already exists!"
+      })
+    }
+    if (req.body.newPassword) user.password = req.body.newPassword;
+    if (req.body.newUsername) user.username = req.body.newUsername;
     await user.save();
     res.sendStatus(200)
   } catch (error) {

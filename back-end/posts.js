@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require('mongoose');
 const router = express.Router();
 const user = require('./users.js')
+const User = user.model;
 
 const postSchema = new mongoose.Schema({
     user: { 
@@ -23,11 +24,14 @@ const commentSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Post'
     },
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    },
     text: String,
     date: String
 })
 
-const User = user.model;
 const Post = mongoose.model('Post', postSchema)
 const Comment = mongoose.model('Comment', commentSchema)
 
@@ -93,15 +97,15 @@ router.post('/:postID/comments', async (req, res) => {
             _id: req.params.postID
         })
         if (!post) {
-            res.send(404);
+            res.sendStatus(404);
             return;
         }
         let comment = new Comment({
             post: post,
             text: req.body.text,
             date: req.body.date,
+            user: req.body.user,
         })
-        console.log(comment);
         await comment.save();
         res.send(comment);
     } catch (error) {
@@ -116,7 +120,8 @@ router.put('/:id', async(req, res) => {
         let post = await Post.findOne({
             _id: req.params.id
         })
-        if (post.likedUsers.find(user => user === req.body.user)) post.likedUsers.push(req.body.user)
+        if (post.likedUsers.find(user => user == req.body.user)) return;
+        post.likedUsers.push(req.body.user)
         post.likes++
         await post.save();
     } catch (error) {
