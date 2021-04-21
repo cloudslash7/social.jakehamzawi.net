@@ -2,7 +2,7 @@
   <div>
     <input type='image' id='addIcon' alt='Post' :src='require("@/assets/add.png")' v-if='!createPost' @click='createPost=true'>
     <div v-if='createPost'>
-      <h1>Create a Post</h1>
+      <h2>Create a Post</h2>
       <div class='container'>
         <div class='upload-container'>
           <input class='upload-item' id='upload-image' img='@/assets/image.png' type='file' accept='image/*' name='photo' @change='fileChanged'>

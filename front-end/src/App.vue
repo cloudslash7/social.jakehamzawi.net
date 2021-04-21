@@ -6,10 +6,9 @@
         <div id='logoText'>SeaSpace</div>
       </div>
       <div id="nav">
-        <div id='userInfo' v-if='user'>
-          <router-link to="/account"><input type='image' id='accountIcon' :src="require('@/assets/user.png')"></router-link>
-          {{user.username}}
-          <button @click='logout'>Sign Out</button>
+        <div class='userInfo' v-if='user'>
+          <router-link class='userInfo' to="/account"><input type='image' class='topBarIcon' :src="require('@/assets/user.png')">{{user.username}}</router-link>
+          <input class='topBarIcon' type='image' :src='require("@/assets/logout.png")' alt='Sign Out' @click='logout'>
         </div>
         <router-link v-if=!user to="/login"><button>Sign In</button></router-link>
       </div>
@@ -31,6 +30,7 @@ export default {
       try {
         await axios.delete("/api/users")
         this.$root.$data.user = null;
+        this.$router.push({ name: 'Login' })
       } catch (error) {
         console.log(error);
       }
@@ -42,7 +42,7 @@ export default {
 <style>
 @media screen and (max-width: 600px) {
   #logoText {
-    visibility: hidden
+    visibility: hidden;
   }
   body {
     font-size: .8em;
@@ -59,8 +59,7 @@ export default {
     margin-left: 20px;
   }
 }
-#userInfo {
-  color: #cacaca;
+.userInfo {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -109,14 +108,22 @@ body {
   align-items: center;
 }
 #nav a {
+  color: #eaeaea;
+  text-decoration: none;
   font-weight: bold;
-  color: #2c3e50;
 }
-#accountIcon {
+.topBarIcon {
   width: 20px;
-  margin: 20px
+  margin: 0 5px 0 15px;
 }
 input[type="image"]:focus {
   outline: none;
+}
+input {
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+textarea {
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  padding: 5px;
 }
 </style>

@@ -7,7 +7,7 @@
                 <div class='likes'>
                     <input class='likeButton' v-if='likeMap[post._id]' @click='like(post._id)' alt='Like' type='image' :src='require("@/assets/liked.png")'>
                     <input class='likeButton' v-else alt='Like' @click='like(post._id)' type='image' :src='require("@/assets/unliked.png")'>
-                    <p :key='likeKey'>{{post.likes}}</p>
+                    <p>{{post.likes}}</p>
                 </div>
                 <div id='description'>{{post.description}}</div>
                 <hr>
@@ -51,7 +51,6 @@ export default {
             displayComments: {},
             users: {},
             likeMap: {},
-            likeKey: 0,
         }
     },
     async created() {
@@ -126,21 +125,18 @@ export default {
                 this.getPosts();
                 this.getComments(id);
                 this.text = {};
-                return true;
             } catch (error) {
                 console.log(error);
             }
         },
         async like(id) {
             if (this.likeMap[id] === this.user._id) return;
-            this.$set(this.likeMap, id, this.user._id);
             try {
                 await axios.put('/api/posts/' + id, {
                     user: this.user._id
                 });
                 this.getPosts();
-                this.likeKey++;
-                return true;
+                this.$set(this.likeMap, id, this.user._id);
             } catch (error) {
                 console.log(error);
             }
