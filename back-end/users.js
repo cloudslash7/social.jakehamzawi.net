@@ -197,13 +197,14 @@ router.put('/:userID', async (req, res) => {
         message: "Incorrect password!"
       });
     }
-    if (User.findOne({username: req.body.newUserName})) {
+    let existingUser = await User.findOne({username: req.body.newUsername});
+    if (existingUser) {
       return res.status(403).send({
         message: "User already exists!"
       })
     }
-    if (req.body.newPassword) user.password = req.body.newPassword;
-    if (req.body.newUsername) user.username = req.body.newUsername;
+    if (req.body.newPassword != "") user.password = req.body.newPassword;
+    if (req.body.newUsername != "") user.username = req.body.newUsername;
     await user.save();
     res.sendStatus(200)
   } catch (error) {
@@ -222,7 +223,6 @@ router.delete("/", checkCookie, async (req, res) => {
     return res.sendStatus(500);
   }
 });
-
 
 module.exports = {
   routes: router,

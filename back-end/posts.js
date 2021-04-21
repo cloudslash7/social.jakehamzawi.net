@@ -124,6 +124,7 @@ router.put('/:id', async(req, res) => {
         post.likedUsers.push(req.body.user)
         post.likes++
         await post.save();
+        res.sendStatus(200);
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
