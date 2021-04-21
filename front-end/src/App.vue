@@ -9,6 +9,7 @@
         <div id='userInfo' v-if='user'>
           <div>{{user.username}}</div>
           <router-link to="/account"><input type='image' :src="require('@/assets/user.png')"></router-link>
+          <button @click='logout'>Sign Out</button>
         </div>
         <router-link v-if=!user to="/login"><button>Sign In</button></router-link>
       </div>
@@ -18,10 +19,21 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   computed: {
     user: function() {
       return this.$root.$data.user;
+    }
+  },
+  methods: {
+    async logout() {
+      try {
+        await axios.delete("/api/users")
+        this.$root.$data.user = null;
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 }

@@ -6,7 +6,6 @@
       <div class='container'>
         <div class='upload-container'>
           <input class='upload-item' id='upload-image' img='@/assets/image.png' type='file' accept='image/*' name='photo' @change='fileChanged'>
-          <input :class="error ? 'uploadItem error' : 'uploadItem'" v-model='user' placeholder='Username'>
           <textarea class='upload-item' id='description' v-model='description' placeholder="What's on your mind?"></textarea>
           <div id='controlBox'>
             <input class='controls' type='image' :src='require("@/assets/cancel.png")' @click='createPost=false'>
@@ -27,7 +26,6 @@ export default {
   name: 'Upload',
   data() {
     return {
-      user: "",
       description: "",
       file: null,
       addItem: null,
@@ -37,8 +35,10 @@ export default {
       error: false
     }
   },
-  created() {
-
+  computed: {
+    user: function() {
+      return this.$root.$data.user;
+    }
   },
   methods: {
     fileChanged(event) {
@@ -56,7 +56,6 @@ export default {
           path: r1.data.path
         });
         this.addItem = r2.data;
-        this.user = this.description = "";
         this.file = null;
         this.$router.go();
       } catch (error) {

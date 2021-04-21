@@ -4,10 +4,19 @@ const router = express.Router();
 const user = require('./users.js')
 
 const postSchema = new mongoose.Schema({
-    user: String,
-    description: String,
-    path: String,
-    likes: Number
+    user: { 
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        required: true 
+    },
+    description: { type: String, required: true },
+    path: { type: String, required: true },
+    likedUsers: {
+        type: [mongoose.Schema.ObjectId],
+        ref: 'User',
+        required: true
+    },
+    likes: { type: Number, required: true },
 })
 const commentSchema = new mongoose.Schema({
     post: {
@@ -49,24 +58,18 @@ router.get('/:postID/comments', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    try {
+        let photos = await Post.find({user:req.params.id});
+        res.send(photos);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(404);
+    }
+});
 
 
 router.post('/', async (req, res) => {
-    let userFound = await User.countDocuments({username:req.body.user}, function (err, count) {
-        if (err) {
-            console.log(err);
-            return 0;
-        }
-        else {
-            console.log("User \"" + req.body.user + "\" - " + count);
-            return count;
-        }
-    });
-    if (!userFound) {
-        console.log("User \"" + req.body.user + "\" not found!");
-        res.sendStatus(404);
-        return false;
-    }
     const post = new Post({
         user: req.body.user,
         description: req.body.description,
@@ -101,6 +104,33 @@ router.post('/:postID/comments', async (req, res) => {
         console.log(comment);
         await comment.save();
         res.send(comment);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+//like
+router.put('/:id', async(req, res) => {
+    try {
+        let post = await Post.findOne({
+            _id: req.params.id
+        })
+        if (post.likedUsers.find(user => user === req.body.user)) post.likedUsers.push(req.body.user)
+        post.likes++
+        await post.save();
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.delete('/:id', async(req, res) => {
+    try {
+        await Post.deleteOne({
+            _id: req.params.id
+        });
+        res.sendStatus(200);
     } catch (error) {
         console.log(error);
         res.sendStatus(500);

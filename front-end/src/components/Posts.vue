@@ -2,13 +2,12 @@
     <div class='posts'>
         <div v-if='posts'>
             <div class='post' v-for='post in this.slicedPosts' :key='post._id'>
-                <h3 class='username'>{{post.user}}</h3>
+                <h3 class='username'>{{users[post.user]}}</h3>
                 <img class='image' :src='post.path'/>
                 <div class='likes'>
-                    <input class='likeButton' v-if='likeMap.length != 0 && liked(post._id)' @click='like(post._id)' alt='Like' type='image' :src='require("@/assets/liked.png")'>
+                    <input class='likeButton' v-if='post.likedUsers.find(post=>post.user===this.$root.$data.user._id)' @click='like(post._id)' alt='Like' type='image' :src='require("@/assets/liked.png")'>
                     <input class='likeButton' v-else alt='Like' @click='like(post._id)' type='image' :src='require("@/assets/unliked.png")'>
                     <p>{{post.likes}}</p>
-                    <input class='controls' id='trash' type='image' :src='require("@/assets/delete.png")' @click='deletePost(post._id)'>
                 </div>
                 <div id='description'>{{post.description}}</div>
                 <hr>
@@ -46,12 +45,13 @@ export default {
             text: {},
             limiter: 3,
             comments: [],
-            likeMap: [],
-            displayComments: {}
+            displayComments: {},
+            users: {}
         }
     },
-    created() {
-        this.getPosts();
+    async created() {
+        await this.getPosts();
+        this.getUsers();
     },
     computed: {
         limit: function () {
@@ -67,15 +67,9 @@ export default {
             try {
                 let response = await axios.get('/api/posts');
                 this.posts = response.data;
-                this.initializeLikeMap();
                 return true;
             } catch (error) {
                 console.log(error);
-            }
-        },
-        initializeLikeMap() {
-            for (let i = this.likeMap.length; i < this.posts.length; i++) {
-                this.likeMap.push({id: this.posts[i]._id, liked: false});
             }
         },
         async getComments(id) {
@@ -128,20 +122,30 @@ export default {
             }
         },
         async like(id) {
-            if (!this.likeMap.find(post => post.id === id).liked) {
-                try {
-                    await axios.put('/api/posts/' + id);
-                    console.log(this.likeMap[this.likeMap.findIndex(post => post.id === id)]);
-                    this.likeMap[this.likeMap.findIndex(post => post.id === id)].liked = true;
-                    this.getPosts();
-                    return true;
-                } catch (error) {
-                    console.log(error);
-                }
+            try {
+                await axios.put('/api/posts/' + id, {
+                    user: this.$root.$data.user._id
+                });
+                console.log(this.likeMap[this.likeMap.findIndex(post => post.id === id)]);
+                this.likeMap[this.likeMap.findIndex(post => post.id === id)].liked = true;
+                this.getPosts();
+                return true;
+            } catch (error) {
+                console.log(error);
             }
         },
-        liked(id) {
-            return this.likeMap[this.likeMap.findIndex(post => post.id === id)].liked;
+        async getUsers() {
+            try {
+                for (let i = 0; i < this.posts.length; i++) {
+                    let response = await axios.get('/api/users/' + this.posts[i].user)
+                    let user = response.data
+                    this.users[user._id] = user.username;
+                }
+                return true
+            } catch (error) {
+                console.log(error)
+                return false
+            }
         }
     }
 }

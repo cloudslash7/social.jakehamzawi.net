@@ -4,23 +4,23 @@
       <h2>Account created successfully!</h2>
       <h3><router-link to='/'>Back home</router-link></h3>
     </div>
-      <div v-else>
-        <h1 v-if='createAccount'>Create an account</h1>
-        <h1 v-else>Log In</h1>
-        <div class='main-container'>
-          <div class='container'>
-            <input class='login-box' v-model='username' placeholder='Username'>
-            <input type='password' class='login-box' v-model='password' placeholder='Password'>
-            <input type='password' v-if='createAccount' class='login-box' v-model='confirmPassword' placeholder='Confirm password'>
-            <label v-if='!createAccount'><input type='checkbox' v-model='staySignedIn'>Stay signed in</label>
-            <div v-if='!createAccount'>Don't have an account? <a @click='switchAccount'>Create one!</a></div>
-            <div v-else>Already have an account? <a @click='switchAccount'>Log in!</a></div>
-            <button v-if='createAccount' id='createAccount' @click.prevent='addUser'>Create Account</button>
-            <button v-else @click='login'>Login</button>
-          </div>
-        </div>
+    <div v-else>
+      <h1 v-if='createAccount'>Create an account</h1>
+      <h1 v-else>Log In</h1>
+      <div class='main-container'>
+        <form class='container'>
+          <input class='login-box' v-model='username' placeholder='Username'>
+          <input type='password' class='login-box' v-model='password' placeholder='Password'>
+          <input type='password' v-if='createAccount' class='login-box' v-model='confirmPassword' placeholder='Confirm password'>
+          <!--<label v-if='!createAccount'><input type='checkbox' v-model='staySignedIn'>Stay signed in</label> Change how cookies work-->
+          <div v-if='!createAccount'>Don't have an account? <a @click='switchAccount'>Create one!</a></div>
+          <div v-else>Already have an account? <a @click='switchAccount'>Log in!</a></div>
+          <button v-if='createAccount' id='createAccount' @click.prevent='addUser'>Create Account</button>
+          <button v-else @click.prevent='login'>Login</button>
+        </form>
       </div>
-      <p v-if='errorMessage' id='error'>{{errorMessage}}</p>
+    </div>
+    <p v-if='errorMessage' id='error'>{{errorMessage}}</p>
     <hr style='margin-top:500px;'>
     <div>https://github.com/cloudslash7/social.jakehamzawi.net</div>
   </div>
@@ -67,11 +67,11 @@ import axios from 'axios';
       },
       async login() {
         if (!this.username || !this.password) {
-          this.error = "Username and password required!"
+          this.errorMessage = "Username and password required!"
           return;
         }
         try {
-          let response = await axios.post('/api/users/login/' + this.staySignedIn, {
+          let response = await axios.post('/api/users/login', {
             username: this.username,
             password: this.password
           });
@@ -92,6 +92,9 @@ import axios from 'axios';
 </script>
 
 <style scoped>
+h1 {
+  margin-top: 1.5em;
+}
 .main-container {
   display: flex;
   justify-content: center;
@@ -100,7 +103,7 @@ import axios from 'axios';
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2em;
+  padding: 1em;
   box-shadow: gray 1px;
   height: 200px;
 }

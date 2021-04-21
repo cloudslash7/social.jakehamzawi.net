@@ -12,11 +12,20 @@
 // @ is an alias to /src
 import Upload from '@/components/Upload.vue'
 import Posts from '@/components/Posts.vue'
+import axios from 'axios'
 export default {
   name: 'Home',
   components: {
     Upload,
     Posts
+  },
+  async created() {
+    try {
+      let response = await axios.get('/api/users');
+      this.$root.$data.user = response.data.user;
+    } catch (error) {
+      this.$root.$data.user = null;
+    }
   },
   computed: {
     user: function() {

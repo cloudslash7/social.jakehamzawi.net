@@ -4,9 +4,13 @@ const argon2 = require("argon2");
 
 const router = express.Router();
 
+//
+// User schema and model
+//
+
+// This is the schema. Users have usernames and passwords. We solemnly promise to
+// salt and hash the password!
 const userSchema = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
   username: String,
   password: String,
 });
@@ -41,14 +45,15 @@ userSchema.methods.toJSON = function() {
   return obj;
 }
 
+
 const User = mongoose.model('User', userSchema);
 
 /* Middleware */
 
 // middleware function to check for logged-in users
-const validUser = async (req, res, next) => {
+const checkCookie = async (req, res, next) => {
   if (!req.session.userID)
-    return res.status(403).send({
+    return res.status(404).send({
       message: "not logged in"
     });
   try {
@@ -56,7 +61,7 @@ const validUser = async (req, res, next) => {
       _id: req.session.userID
     });
     if (!user) {
-      return res.status(403).send({
+      return res.status(404).send({
         message: "not logged in"
       });
     }
@@ -64,12 +69,12 @@ const validUser = async (req, res, next) => {
     req.user = user;
   } catch (error) {
     // Return an error if user does not exist.
-    return res.status(403).send({
+    return res.status(404).send({
       message: "not logged in"
     });
   }
 
-  // if everything succeeds, move to the next middleware
+
   next();
 };
 
@@ -120,10 +125,11 @@ router.post('/', async (req, res) => {
 });
 
 // login a user
-router.post('/login/:staySignedIn', async (req, res) => {
+router.post('/login/', async (req, res) => {
   // Make sure that the form coming from the browser includes a username and a
   // password, otherwise return an error.
-  if (!req.body.username || !req.body.password) return res.sendStatus(400)
+  if (!req.body.username || !req.body.password)
+    return res.sendStatus(400);
 
   try {
     //  lookup user record
@@ -144,8 +150,8 @@ router.post('/login/:staySignedIn', async (req, res) => {
       });
 
     // set user session info
-    if (req.params.staySignedIn === true) req.session.userID = user._id;
-    
+    req.session.userID = user._id;
+
     return res.send({
       user: user
     });
@@ -157,7 +163,7 @@ router.post('/login/:staySignedIn', async (req, res) => {
 });
 
 // get logged in user
-router.get('/', validUser, async (req, res) => {
+router.get('/', checkCookie, async (req, res) => {
   try {
     res.send({
       user: req.user
@@ -181,8 +187,27 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.put('/:userID', async (req, res) => {
+  try {
+    let user = await User.findOne({
+      _id: req.params.userID
+    })
+    if (!await user.comparePassword(req.body.currentPassword)) {
+      return res.status(403).send({
+        message: "Incorrect password!"
+      });
+    }
+    user.password = req.body.newPassword;
+    await user.save();
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500)
+  }
+});
+
 // logout
-router.delete("/", validUser, async (req, res) => {
+router.delete("/", checkCookie, async (req, res) => {
   try {
     req.session = null;
     res.sendStatus(200);
@@ -196,5 +221,5 @@ router.delete("/", validUser, async (req, res) => {
 module.exports = {
   routes: router,
   model: User,
-  valid: validUser
+  valid: checkCookie
 };
